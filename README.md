@@ -23,7 +23,6 @@
 ##### ライブラリのダウンロード方法
 
 以下のコマンドでインストールするか、requirements.txt に記載してください。
-
 pip install flask flask-socketio pyaudio vosk
 ##### 音声認識モデル
 ・Voskの日本語モデル: vosk-model-small-ja-0.22
