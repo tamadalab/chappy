@@ -42,7 +42,7 @@ Voskの日本語モデル: vosk-model-small-ja-0.22
 
 以下のコマンドで起動する
 
-```pip install flask flask-socketio pyaudio vosk```
+```python app.py```
 
 ローカルサーバーにアクセスする。デフォルトは以下のURLである
 
