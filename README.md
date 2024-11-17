@@ -11,6 +11,7 @@
 ・ツールの使い方
 ### 開発環境
 #### 使用技術とライブラリ
+<img src="[https://img.shields.io/badge/-{言語、フレームワーク名など}-{シールドのカラーコード}.svg?logo=next.js&style={バッチのスタイル}&logoColor={ロゴのカラーコード}](https://qiita-user-contents.imgix.net/https%3A%2F%2Fimg.shields.io%2Fbadge%2F-Python-F2C63C.svg%3Flogo%3Dpython%26style%3Dfor-the-badge?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&s=c17144ccc12f9c19e9dbba2eec5c7980)">
 
 | 種類              | 技術・ライブラリ      | バージョン  | 説明                                    |
 |-------------------|-----------------------|------------|---------------------------------------|
