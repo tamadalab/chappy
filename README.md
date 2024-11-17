@@ -33,7 +33,7 @@ https://www.python.org
 
 ```pip install flask flask-socketio pyaudio vosk```
 ##### 音声認識モデル
-・Voskの日本語モデル: vosk-model-small-ja-0.22
+Voskの日本語モデル: vosk-model-small-ja-0.22
 
 モデルファイルはVosk公式サイト(https://alphacephei.com/vosk/models) からダウンロードし、プロジェクトのディレクトリに配置してください
 #### ・ローカルでの実行方法
