@@ -23,18 +23,18 @@
 
 ・データフォーマット: JSON
 #### 必要なツールのインストール方法
-##### ・Pythonのインストール
+・Pythonのインストール
 
 Python 3.9以上を以下のURLからインストールしてください
 
 https://www.python.org
 
-##### ・ライブラリのインストール
+・ライブラリのインストール
 
 以下のコマンドでインストールするか、requirements.txt に記載してください。
 
 ```pip install flask flask-socketio pyaudio vosk```
-##### ・音声認識モデル
+・音声認識モデル
 Voskの日本語モデル: vosk-model-small-ja-0.22
 
 モデルファイルはVosk公式サイト(https://alphacephei.com/vosk/models) からダウンロードし、プロジェクトのディレクトリに配置してください
