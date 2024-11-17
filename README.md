@@ -11,8 +11,7 @@
 ・ツールの使い方
 ### 開発環境
 #### 使用技術とライブラリ
-<img src="https://qiita-user-contents.imgix.net/https%3A%2F%2Fimg.shields.io%2Fbadge%2F-Python-F2C63C.svg%3Flogo%3Dpython%26style%3Dfor-the-badge?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&s=c17144ccc12f9c19e9dbba2eec5c7980">
-<img src="https://qiita-user-contents.imgix.net/https%3A%2F%2Fimg.shields.io%2Fbadge%2F-JavaScript-000000.svg%3Fstyle%3Dfor-the-badge%26logo%3DJavaScript%26logoColor%3DF7DF1E?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&s=7a90e0e66d0f873de7b7fe04977968ba">
+<img src="https://qiita-user-contents.imgix.net/https%3A%2F%2Fimg.shields.io%2Fbadge%2F-Python-F2C63C.svg%3Flogo%3Dpython%26style%3Dfor-the-badge?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&s=c17144ccc12f9c19e9dbba2eec5c7980" src="https://qiita-user-contents.imgix.net/https%3A%2F%2Fimg.shields.io%2Fbadge%2F-JavaScript-000000.svg%3Fstyle%3Dfor-the-badge%26logo%3DJavaScript%26logoColor%3DF7DF1E?ixlib=rb-4.0.0&auto=format&gif-q=60&q=75&s=7a90e0e66d0f873de7b7fe04977968ba">
 
 | 種類              | 技術・ライブラリ      | バージョン  | 説明                                    |
 |-------------------|-----------------------|------------|---------------------------------------|
