@@ -36,7 +36,7 @@ https://www.python.org
 ・Voskの日本語モデル: vosk-model-small-ja-0.22
 
 モデルファイルはVosk公式サイト(https://alphacephei.com/vosk/models) からダウンロードし、プロジェクトのディレクトリに配置してください
-##### ローカルでの実行方法
+#### ・ローカルでの実行方法
 
 以下のコマンドで起動する
 
