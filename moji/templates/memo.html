@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+      <!-- metaタグ -->
+      <!--文字コード、スケーリング-->
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <meta name="description" content="メモアプリ">
+      <!-- CSS -->
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+      <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>リアルタイム文字起こし</title>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
+  </head>
+  <body>
+    <!-- ナビゲーションバー -->
+    <nav class="navbar">
+        <a class="navbar-brand" href="#">モジッピー</a>
+        <!--　ハンバーガーメニュー　-->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </nav>
+    <!--行の中に列を作る-->
+    <div class="row" style="margin-top:20px; margin-left:20px">
+      <!---縦に12分割-->
+      <div class="col-6">
+        <h3>文字起こし</h3>
+        <div class="mt-3 d-flex  gap-2">
+          <a class="btn" onclick="saveMoji()">保存</a>  <!-- onclick:japascriptのコードを実行する-->
+          <a class="btn" onclick="delMoji()">消去</a> 
+        </div>
+        <input type="hidden" id="moji-id" name="moji-id">
+        <div id="transcription" class="mt-3 p-3 border bg-light" style="height: 360px; overflow-y: auto;"></div>
+        <input type="text"  id="moji-title" placeholder="タイトル">
+
+        {% if mojidata %}
+            <div id="display-area">
+                <!-- 横スライド用のカードスライダー -->
+                <div class="card-slider">
+                    {% for moji in mojidata %}
+                      <a href="#" class="card" onclick="MojiDisplay('{{ moji.title }}', '{{ moji.content }}', '{{ moji.id }}')"><!--　メモの内容を表示する　-->
+                          <div class="card-header">
+                              <span class="card-title">{{ moji.title }}</span> <!--　保存したメモの内容　-->
+                          </div>
+                          <div class="card-body">
+                              <span class="card-date" >{{ moji.created_at }} </span><!-- 保村したメモのタイトル -->
+                              <span class="card-content">{{ moji.content[:5]}} <!-- HTML文はHTMLで解釈して出力、それ以外は普通に出力 -->
+                          </div>
+                      </a>
+                    {% endfor %}
+                </div>
+            </div>
+          {% endif %}
+      </div>
+
+      <!-- メモ機能　-->
+      <div class="col-6">
+        <h3>メモ</h3>
+        <div class="mt-3 d-flex  gap-2">
+          <a class="btn" onclick="saveNote()">保存</a>  <!-- onclick:japascriptのコードを実行する-->
+          <a class="btn" onclick="delNote()">消去</a> 
+          <a class="btn" onclick="loadMemo()">更新</a> 
+        </div>
+        <input type="hidden" id="memo-id" name="memo-id">
+        <input type="text" class="title"  id="note-title" placeholder="タイトル"> <!-- type：inputの種類選択、place:は中に薄く表示するやつ-->
+        <textarea id="note-content" class="editarea-2"></textarea> <!-- TinyMCEを適用 -->
+
+          <!-- メモデータがある場合 -->
+          {% if memodata %}
+            <div id="display-area">
+                <!-- 横スライド用のカードスライダー -->
+                <div class="card-slider">
+                    {% for memo in memodata %}
+                      <a href="#" class="card" onclick="MemoDisplay('{{ memo.title }}', '{{ memo.content }}', '{{ memo.id }}')"><!--　メモの内容を表示する　-->
+                          <div class="card-header">
+                              <span class="card-title">{{ memo.title }}</span> <!--　保存したメモの内容　-->
+                          </div>
+                          <div class="card-body">
+                              <span class="card-date" >{{ memo.created_at }} </span><!-- 保村したメモのタイトル -->
+                              <span class="card-content">{{ memo.content[:5]}} <!-- HTML文はHTMLで解釈して出力、それ以外は普通に出力 -->
+                          </div>
+                      </a>
+                    {% endfor %}
+                </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <script src='https://kit.fontawesome.com/a076d05399.js'></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+  </body>  
+  <script> //JavaScriptのコードを書くタグ
+    
+    //メモの保存
+    function saveNote(){
+      const title = document.getElementById("note-title").value.trim()//htmlのidの要素を代入する、value:入力値の取得、trim:前後の空白消去
+      const content = document.getElementById("note-content").value.trim(); // TinyMCEの内容をhtmlとして取得
+      const id = document.getElementById("memo-id").value.trim()
+
+      fetch('/save-memo', {
+        method: "POST", //データ送信
+        headers: { 'Content-Type': 'application/json' }, //json形式を指定
+        body: JSON.stringify({ title: title, content: content ,id: id}),//json形式に変換する
+      })
+
+      //メッセージ処理
+      .then(response => response.json())//json形式に変換
+      .then(data => { //メッセージを代入
+        if (data.error) { //サーバー側のエラー
+          alert(data.error);
+        } else {
+          alert(data.message);
+        }
+      })
+      .catch(error => console.error('error:', error));//コンソールのエラー
+    }
+
+    //更新
+    function loadMemo(){
+      window.location.reload();
+    }
+
+    //メモ内容の表示
+    function MemoDisplay(title,content,id){
+      document.getElementById("note-content").value = content; // TinyMCEエディタに内容を設定
+      document.getElementById("note-title").value = title;
+      document.getElementById("memo-id").value = id;
+    }
+
+    //メモの消去
+    function delNote(){
+      const id = document.getElementById("memo-id").value.trim();
+      fetch('/del-memo', {
+        method: "POST", //データ送信
+        headers: { 'Content-Type': 'application/json' }, //json形式を指定
+        body: JSON.stringify({id: id}),//json形式に変換する
+      })
+
+      //メッセージ処理
+      .then(response => response.json())//json形式に変換
+      .then(data => { //メッセージを代入
+        if (data.error) { //サーバー側のエラー
+          alert(data.error);
+        } else {
+          alert(data.message);
+        }
+      })
+      .catch(error => console.error('error:', error));//コンソールのエラー
+    }
+
+    function saveMoji(){
+      const title = document.getElementById("moji-title").value.trim()//htmlのidの要素を代入する、value:入力値の取得、trim:前後の空白消去
+      const content = document.getElementById("transcription").value.trim(); // TinyMCEの内容をhtmlとして取得
+      const id = document.getElementById("moji-id").value.trim()
+
+      fetch('/save-moji', {
+        method: "POST", //データ送信
+        headers: { 'Content-Type': 'application/json' }, //json形式を指定
+        body: JSON.stringify({ title: title, content: content ,id: id}),//json形式に変換する
+      })
+
+      //メッセージ処理
+      .then(response => response.json())//json形式に変換
+      .then(data => { //メッセージを代入
+        if (data.error) { //サーバー側のエラー
+          alert(data.error);
+        } else {
+          alert(data.message);
+        }
+      })
+      .catch(error => console.error('error:', error));//コンソールのエラー
+    }
+
+    function delMoji(){
+      const id = document.getElementById("moji-id").value.trim();
+      fetch('/del-moji', {
+        method: "POST", //データ送信
+        headers: { 'Content-Type': 'application/json' }, //json形式を指定
+        body: JSON.stringify({id: id}),//json形式に変換する
+      })
+
+      //メッセージ処理
+      .then(response => response.json())//json形式に変換
+      .then(data => { //メッセージを代入
+        if (data.error) { //サーバー側のエラー
+          alert(data.error);
+        } else {
+          alert(data.message);
+        }
+      })
+      .catch(error => console.error('error:', error));//コンソールのエラー
+    }
+
+    function MojiDisplay(title,content,id){
+      document.getElementById("transcription").value = content; // TinyMCEエディタに内容を設定
+      document.getElementById("moji-title").value = title;
+      document.getElementById("moji-id").value = id;
+    }
+
+    
+  </script>
+
+  
+
+    <!-- GPT質問用のJavaScript -->
+  <script>
+    function askGPT() {
+      const question = document.getElementById('gptQuestion').value.trim();
+
+      // 入力が空の場合、エラー表示して終了
+      if (!question) {
+        document.getElementById("gptResponseText").innerText = "質問を入力してください。";
+        return;
+      }
+
+      // fetchリクエストでGPTエンドポイントに質問を送信
+      fetch("/ask_gpt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"  // JSON形式で送信
+        },
+        body: JSON.stringify({ memoText: question })  // JSON形式でデータを送信
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        // GPTの応答を表示
+        document.getElementById("gptResponseText").innerText = data.response || "応答がありません";
+      })
+      .catch(error => {
+        document.getElementById("gptResponseText").innerText = "エラーが発生しました。";
+        console.error("エラー:", error);
+      });
+    }
+
+    const socket = io();
+
+    socket.on('transcription', (data) => {
+        const transcriptionDiv = document.getElementById('transcription');
+        const newText = document.createElement('p');
+        newText.textContent = data.text;
+        transcriptionDiv.appendChild(newText);
+    });
+  </script>
+</html>
+

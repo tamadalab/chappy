@@ -1,0 +1,107 @@
+/*背景と文字*/
+body {
+    background-color: rgba(239, 237, 237, 0.749);
+    color: black;
+  }
+
+/* 過去のメモ一覧 */
+#display-area {
+  max-height: 100px; /* 表示エリアの高さ */
+  border: none;
+  padding: 10px; /*全方向の余白の大きさ*/
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* 横スクロールエリア */
+.card-slider {
+  display: flex; /* 横並びに配置 */
+  overflow-x: auto; /* 横スクロールを有効に */
+  gap: 5px; /* カード間の隙間 */
+  scroll-snap-type: x mandatory; /* スクロールスナップを有効にする */
+  white-space: nowrap; /* カードが折り返されないようにする */
+  transition: transform 0.3s ease;
+}
+
+/* カードスタイル */
+.card {
+  flex: 0 0 auto; /* カードの幅を固定 */
+  height: 70px; 
+  width: 150px; /* カードの幅 */
+  border: 1px solid #ddd; /* 枠線 */
+  border-radius: 5px; /* カードの角を丸める */
+  background-color: #fff; /* 背景色 */
+  scroll-snap-align: start; /* スクロールした時のカードの位置を先頭に揃える */
+  padding: 1px;
+}
+/*マウスが領域に触れた時*/
+.card:hover {
+  background-color: rgb(221, 216, 216);
+  text-decoration: none; /* 下線を削除 */
+}
+
+/*カードのタイトル*/
+.card-header{
+  color: black;
+  border: none; /* ボーダーを削除 */
+  padding-bottom: 3px; /*内側の下の余白*/
+  height: 20px;
+  text-align: center; /* 垂直方向の中央揃え */
+  background-color: #fff; /* 背景色 */
+  font-size: 0.8rem; /*フォントの大きさ*/
+  font-weight: bold; /*フォントの太さ*/
+}
+
+/* カード内の本文 */
+.card-body {
+  height: 50px; 
+  display: flex;
+  font-size: 0.7rem;
+  color: #666;
+}
+
+/*作成日*/
+.card-date{
+  margin-right: 5px; /*右側に余白*/
+}
+
+/*エディット*/
+.editarea-1{
+  width: 99%;
+  height: 360px;
+}
+.editarea-2{
+  width: 99%;
+  height: 360px;
+}
+
+.btn{
+  background-color: #fff;
+  border: double 6px grey;
+  color: rgb(84, 84, 84);
+  border-radius: 10px; /*半径として角を丸める*/
+  padding: 3px 12px;
+  margin-bottom: 3px;
+  text-decoration: none; /*テキスト装飾(下線など)消去*/
+  font-size: 1em;
+}
+.btn:hover {
+  color: #fff;
+  background-color: grey;
+}
+
+.title{
+  margin-bottom: 5px;
+}
+
+.navbar{
+  background-color: rgb(15, 211, 237);
+  color: white;
+  font-weight: bold;
+  justify-content: center;
+}
+
+.navbar-brand{
+  color: white;
+}
+
+
