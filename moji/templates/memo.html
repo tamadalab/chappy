@@ -1,256 +1,225 @@
 <!doctype html>
 <html lang="ja">
-  <head>
-      <!-- metaタグ -->
-      <!--文字コード、スケーリング-->
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-      <meta name="description" content="メモアプリ">
-      <!-- CSS -->
-      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-      <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>リアルタイム文字起こし</title>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
-  </head>
-  <body>
-    <!-- ナビゲーションバー -->
-    <nav class="navbar">
-        <a class="navbar-brand" href="#">モジッピー</a>
-        <!--　ハンバーガーメニュー　-->
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </nav>
-    <!--行の中に列を作る-->
-    <div class="row" style="margin-top:20px; margin-left:20px">
-      <!---縦に12分割-->
-      <div class="col-6">
-        <h3>文字起こし</h3>
-        <div class="mt-3 d-flex  gap-2">
-          <a class="btn" onclick="saveMoji()">保存</a>  <!-- onclick:japascriptのコードを実行する-->
-          <a class="btn" onclick="delMoji()">消去</a> 
-        </div>
-        <input type="hidden" id="moji-id" name="moji-id">
-        <div id="transcription" class="mt-3 p-3 border bg-light" style="height: 360px; overflow-y: auto;"></div>
-        <input type="text"  id="moji-title" placeholder="タイトル">
-
-        {% if mojidata %}
-            <div id="display-area">
-                <!-- 横スライド用のカードスライダー -->
-                <div class="card-slider">
-                    {% for moji in mojidata %}
-                      <a href="#" class="card" onclick="MojiDisplay('{{ moji.title }}', '{{ moji.content }}', '{{ moji.id }}')"><!--　メモの内容を表示する　-->
-                          <div class="card-header">
-                              <span class="card-title">{{ moji.title }}</span> <!--　保存したメモの内容　-->
-                          </div>
-                          <div class="card-body">
-                              <span class="card-date" >{{ moji.created_at }} </span><!-- 保村したメモのタイトル -->
-                              <span class="card-content">{{ moji.content[:5]}} <!-- HTML文はHTMLで解釈して出力、それ以外は普通に出力 -->
-                          </div>
-                      </a>
-                    {% endfor %}
-                </div>
-            </div>
-          {% endif %}
-      </div>
-
-      <!-- メモ機能　-->
-      <div class="col-6">
-        <h3>メモ</h3>
-        <div class="mt-3 d-flex  gap-2">
-          <a class="btn" onclick="saveNote()">保存</a>  <!-- onclick:japascriptのコードを実行する-->
-          <a class="btn" onclick="delNote()">消去</a> 
-          <a class="btn" onclick="loadMemo()">更新</a> 
-        </div>
-        <input type="hidden" id="memo-id" name="memo-id">
-        <input type="text" class="title"  id="note-title" placeholder="タイトル"> <!-- type：inputの種類選択、place:は中に薄く表示するやつ-->
-        <textarea id="note-content" class="editarea-2"></textarea> <!-- TinyMCEを適用 -->
-
-          <!-- メモデータがある場合 -->
-          {% if memodata %}
-            <div id="display-area">
-                <!-- 横スライド用のカードスライダー -->
-                <div class="card-slider">
-                    {% for memo in memodata %}
-                      <a href="#" class="card" onclick="MemoDisplay('{{ memo.title }}', '{{ memo.content }}', '{{ memo.id }}')"><!--　メモの内容を表示する　-->
-                          <div class="card-header">
-                              <span class="card-title">{{ memo.title }}</span> <!--　保存したメモの内容　-->
-                          </div>
-                          <div class="card-body">
-                              <span class="card-date" >{{ memo.created_at }} </span><!-- 保村したメモのタイトル -->
-                              <span class="card-content">{{ memo.content[:5]}} <!-- HTML文はHTMLで解釈して出力、それ以外は普通に出力 -->
-                          </div>
-                      </a>
-                    {% endfor %}
-                </div>
-            </div>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-    <script src='https://kit.fontawesome.com/a076d05399.js'></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-  </body>  
-  <script> //JavaScriptのコードを書くタグ
-    
-    //メモの保存
-    function saveNote(){
-      const title = document.getElementById("note-title").value.trim()//htmlのidの要素を代入する、value:入力値の取得、trim:前後の空白消去
-      const content = document.getElementById("note-content").value.trim(); // TinyMCEの内容をhtmlとして取得
-      const id = document.getElementById("memo-id").value.trim()
-
-      fetch('/save-memo', {
-        method: "POST", //データ送信
-        headers: { 'Content-Type': 'application/json' }, //json形式を指定
-        body: JSON.stringify({ title: title, content: content ,id: id}),//json形式に変換する
-      })
-
-      //メッセージ処理
-      .then(response => response.json())//json形式に変換
-      .then(data => { //メッセージを代入
-        if (data.error) { //サーバー側のエラー
-          alert(data.error);
-        } else {
-          alert(data.message);
-        }
-      })
-      .catch(error => console.error('error:', error));//コンソールのエラー
-    }
-
-    //更新
-    function loadMemo(){
-      window.location.reload();
-    }
-
-    //メモ内容の表示
-    function MemoDisplay(title,content,id){
-      document.getElementById("note-content").value = content; // TinyMCEエディタに内容を設定
-      document.getElementById("note-title").value = title;
-      document.getElementById("memo-id").value = id;
-    }
-
-    //メモの消去
-    function delNote(){
-      const id = document.getElementById("memo-id").value.trim();
-      fetch('/del-memo', {
-        method: "POST", //データ送信
-        headers: { 'Content-Type': 'application/json' }, //json形式を指定
-        body: JSON.stringify({id: id}),//json形式に変換する
-      })
-
-      //メッセージ処理
-      .then(response => response.json())//json形式に変換
-      .then(data => { //メッセージを代入
-        if (data.error) { //サーバー側のエラー
-          alert(data.error);
-        } else {
-          alert(data.message);
-        }
-      })
-      .catch(error => console.error('error:', error));//コンソールのエラー
-    }
-
-    function saveMoji(){
-      const title = document.getElementById("moji-title").value.trim()//htmlのidの要素を代入する、value:入力値の取得、trim:前後の空白消去
-      const content = document.getElementById("transcription").value.trim(); // TinyMCEの内容をhtmlとして取得
-      const id = document.getElementById("moji-id").value.trim()
-
-      fetch('/save-moji', {
-        method: "POST", //データ送信
-        headers: { 'Content-Type': 'application/json' }, //json形式を指定
-        body: JSON.stringify({ title: title, content: content ,id: id}),//json形式に変換する
-      })
-
-      //メッセージ処理
-      .then(response => response.json())//json形式に変換
-      .then(data => { //メッセージを代入
-        if (data.error) { //サーバー側のエラー
-          alert(data.error);
-        } else {
-          alert(data.message);
-        }
-      })
-      .catch(error => console.error('error:', error));//コンソールのエラー
-    }
-
-    function delMoji(){
-      const id = document.getElementById("moji-id").value.trim();
-      fetch('/del-moji', {
-        method: "POST", //データ送信
-        headers: { 'Content-Type': 'application/json' }, //json形式を指定
-        body: JSON.stringify({id: id}),//json形式に変換する
-      })
-
-      //メッセージ処理
-      .then(response => response.json())//json形式に変換
-      .then(data => { //メッセージを代入
-        if (data.error) { //サーバー側のエラー
-          alert(data.error);
-        } else {
-          alert(data.message);
-        }
-      })
-      .catch(error => console.error('error:', error));//コンソールのエラー
-    }
-
-    function MojiDisplay(title,content,id){
-      document.getElementById("transcription").value = content; // TinyMCEエディタに内容を設定
-      document.getElementById("moji-title").value = title;
-      document.getElementById("moji-id").value = id;
-    }
-
-    
-  </script>
-
-  
-
-    <!-- GPT質問用のJavaScript -->
-  <script>
-    function askGPT() {
-      const question = document.getElementById('gptQuestion').value.trim();
-
-      // 入力が空の場合、エラー表示して終了
-      if (!question) {
-        document.getElementById("gptResponseText").innerText = "質問を入力してください。";
-        return;
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>リアルタイム文字起こし</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
+  <style>
+    body {
+      font-family: Arial;
+      background-color: rgba(239, 237, 237, 0.749);
+      color: black;
+      padding-top: 45px;
       }
 
-      // fetchリクエストでGPTエンドポイントに質問を送信
-      fetch("/ask_gpt", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"  // JSON形式で送信
-        },
-        body: JSON.stringify({ memoText: question })  // JSON形式でデータを送信
-      })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        // GPTの応答を表示
-        document.getElementById("gptResponseText").innerText = data.response || "応答がありません";
-      })
-      .catch(error => {
-        document.getElementById("gptResponseText").innerText = "エラーが発生しました。";
-        console.error("エラー:", error);
-      });
+    #content { 
+      margin-bottom: 15px;
+      height: 200px; 
+      padding: 10px; 
+      border: 1px solid #ccc; 
+      overflow-y: auto; 
+      background: white
+
+    }
+    #content:empty::before {
+      content: "ここに音声が表示される";
+      color: #7b7b7b;
     }
 
-    const socket = io();
 
+    .voice-title{
+      margin-top: 3px;
+      margin-bottom: 5px;
+      width: 150px;
+      height: 22px;
+      border: 1px solid black;
+      padding: 3px 10px;
+      border-radius: 5px;
+      box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.2); /* 内側の影 */
+    }
+    .voice-title::placeholder{
+      font-size: 15px;
+    }
+
+    .header{
+      background-color: rgb(15, 211, 237);
+      color: white;
+      position: absolute;
+      top: 0;
+      right: 0;
+      left: 0;
+      text-align: center;
+      flex-direction: row;
+    }
+    .header-flex{
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      height: 46px;
+    }
+
+    .header-one{
+      font-size: 22px;
+      font-weight: bold;
+      margin-left: 20px;
+      display: flex;
+      align-items: center;
+    }
+    .header-img{
+      height: 40px;
+      border-radius: 30px;
+      margin-right: 5px;
+    }
+
+    .header a{
+      color: white;
+      margin-right: 20px;
+      font-weight: bold;
+      display: flex;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .header a:hover{
+      color: rgb(204, 229, 232);
+      text-decoration: underline;
+      text-decoration-color: rgb(204, 229, 232);
+    }
+
+    .btn-on{
+      background-color: #fff;
+      border: double 6px rgb(235, 87, 87);
+      color:  rgb(235, 87, 87);
+      border-radius: 10px; /*半径として角を丸める*/
+      padding: 3px 12px;
+      margin-bottom: 3px;
+      text-decoration: none; /*テキスト装飾(下線など)消去*/
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-on:hover{
+      background-color: rgb(235, 87, 87);
+      color:  white
+    }
+
+    .btn-off{
+      background-color: #fff;
+      border: double 6px rgb(56, 132, 245);
+      color:  rgb(56, 132, 245);
+      border-radius: 10px; /*半径として角を丸める*/
+      padding: 3px 12px;
+      margin-bottom: 3px;
+      text-decoration: none; /*テキスト装飾(下線など)消去*/
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-off:hover{
+      background-color: rgb(56, 132, 245);
+      color:  white
+    }
+
+    .btn{
+      background-color: #fff;
+      border: double 6px rgb(150, 150, 150);
+      color:  rgb(150, 150, 150);
+      border-radius: 10px; /*半径として角を丸める*/
+      padding: 3px 12px;
+      margin-bottom: 3px;
+      text-decoration: none; /*テキスト装飾(下線など)消去*/
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn:hover {
+      color: #fff;
+      background-color: rgb(150, 150, 150)
+    }
+
+    #memo{
+      width: 99%;
+      height: 250px;
+      padding: 15px 10px;
+      font-size: 17px;
+      box-shadow: inset 1px 2px 5px rgba(0, 0, 0, 0.2); /* 内側の影 */
+    }
+    #memo::placeholder{
+      color:  #999;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-flex">
+      <div class="header-one">
+        <img class="header-img" src="/icons/ahiru.png">
+        <p>モジっぴー</p>
+      </div>
+      <a href="https://tamadalab.esa.io/posts" target="_">tamadalabのesa</a>
+    </div>
+      
+  </div>
+  <div>
+    <button class="btn-on" id="start-button">Start</button>
+    <button class="btn-off" id="stop-button">Stop</button>
+    <button class="btn" id="save-button">Save</button>
+  </div>
+
+  <input class="voice-title" type="text" id="title" placeholder="タイトル">
+  <div id="content"></div>
+  <textarea id="memo" placeholder="メモ"></textarea>
+
+  <script>
+    const socket = io.connect("http://127.0.0.1:5000");
+
+    // 録音開始
+    document.getElementById("start-button").addEventListener("click", () => {
+      socket.emit('start_recording');
+      console.log("録音を開始しました");
+    });
+
+    // 録音停止
+    document.getElementById("stop-button").addEventListener("click", () => {
+      socket.emit('stop_recording');
+      console.log("録音を停止しました");
+    });
+
+    // サーバーから文字起こし結果を受信
     socket.on('transcription', (data) => {
-        const transcriptionDiv = document.getElementById('transcription');
-        const newText = document.createElement('p');
-        newText.textContent = data.text;
-        transcriptionDiv.appendChild(newText);
+      const contentDiv = document.getElementById("content");
+      contentDiv.innerHTML += `<p>${data.text}</p>`;
+      contentDiv.scrollTop = contentDiv.scrollHeight; // 自動スクロール
+    });
+
+    // esaに保存
+    document.getElementById("save-button").addEventListener("click", () => {
+      const content = document.getElementById("content").innerText;
+      const title = document.getElementById("title").value;
+      const memoContent = document.getElementById("memo").value;
+      const combinedContent = `### --音声内容--\n${content}\n\n### --メモ--\n${memoContent}`;
+      fetch("/save-to-esa", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          post: {
+            name: title,
+            body_md: combinedContent,
+            tags: ["voice recognition"],
+            category: "voice recognition"
+          }
+        })
+      })
+      .then(response => response.json())
+      .then(data => alert("esaに記事が保存されました!"))
+      .catch(error => console.error("保存エラー:", error));
     });
   </script>
-</html>
 
+<script src="https://cdn.tiny.cloud/1/ea9f0lg5zvoy7phs7l2x0k2knawuex23vh8bgtews3pd4f9w/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
+<!-- Place the following <script> and <textarea> tags your HTML's <body> -->
+
+</body>
+</html>
