@@ -40,8 +40,6 @@ https://www.python.org
 
 ```pip install flask flask-socketio pyaudio  SpeechRecognition```
 
-・音声認識モデル
-
 #### ローカルでの実行方法
 
 以下のコマンドで起動する
