@@ -38,7 +38,7 @@ https://www.python.org
 
 以下のコマンドでインストールするか、requirements.txt に記載してください。
 
-```pip install flask flask-socketio pyaudio vosk```
+```pip install flask flask-socketio pyaudio  speech_recognition```
 
 ・音声認識モデル
 
@@ -46,7 +46,7 @@ https://www.python.org
 
 以下のコマンドで起動する
 
-```python app.py```
+```python run.py```
 
 ローカルサーバーにアクセスする。デフォルトは以下のURLである
 
