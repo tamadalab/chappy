@@ -25,7 +25,7 @@
 | フロントエンド     | JavaScript           | ES6以上     | Webアプリケーションの動的部分を担当     |
 | フレームワーク     | Flask                | 2.1.3      | Webアプリケーションフレームワーク  |
 | リアルタイム通信   | Flask-SocketIO       | 5.3.1      | WebSocket通信をサポートするライブラリ   |
-| 音声処理           | speech_recognition            |  3.10.0      | マイクから音声をキャプチャするライブラリ |
+| 音声処理           | SpeechRecognition          |  3.10.0      | マイクから音声をキャプチャするライブラリ |
 
 #### 必要なツールのインストール方法
 ・Pythonのインストール
@@ -38,7 +38,7 @@ https://www.python.org
 
 以下のコマンドでインストールするか、requirements.txt に記載してください。
 
-```pip install flask flask-socketio pyaudio  speech_recognition```
+```pip install flask flask-socketio pyaudio  SpeechRecognition```
 
 ・音声認識モデル
 
