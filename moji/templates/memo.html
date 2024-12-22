@@ -18,8 +18,9 @@
       height: 200px; 
       padding: 10px; 
       border: 1px solid #ccc; 
-      background: white
-
+      background: white;
+      overflow-y: auto; /* 縦方向のスクロールバーを有効化 */
+      overflow-x: hidden; /* 横方向のスクロールは無効化 */
     }
     #content:empty::before {
       content: "ここに音声が表示される";
