@@ -34,7 +34,7 @@ https://www.python.org
 
 以下のコマンドでインストールするか、requirements.txt に記載してください。
 
-```pip install flask flask-socketio pyaudio  SpeechRecognition```
+```pip install flask flask-socketio pyaudio  SpeechRecognition　requests```
 
 #### ローカルでの実行方法
 
