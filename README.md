@@ -45,7 +45,10 @@ https://www.python.org
 ローカルサーバーにアクセスする。デフォルトは以下のURLである
 
 ```http://127.0.0.1:5000```
+
 startボタン：録音を開始する
+
 stopボタン：録音を停止する
+
 save to esa：esaに保存する
 
